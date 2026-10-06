@@ -37,7 +37,8 @@ Yapılan her adım burada, en yenisi en altta olacak şekilde yazılır.
 ### Adım 0 — Proje kurulumu
 - Hedefler ve teknoloji seçimleri belirlendi (yukarıdaki tablo).
 - Geliştirme ortamı olarak Visual Studio 2022 Community ("C++ ile masaüstü geliştirme"
-  iş yükü: MSVC derleyicisi, Windows SDK, CMake) seçildi; `winget` ile kuruluyor.
+  iş yükü: MSVC derleyicisi, Windows SDK, CMake) `winget` ile kuruldu
+  (MSVC 14.44, CMake 3.31).
 - Bu repo oluşturuldu.
 - **Proje yapısı kararlaştırıldı:** motor bir kütüphane (`engine/`), oyunlar onu kullanan
   programlar (`examples/`, `games/`). Katmanlar tek yönlü bağımlı:

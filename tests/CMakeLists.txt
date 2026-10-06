@@ -1,6 +1,7 @@
 add_executable(engine_tests
     test_main.cpp
-    test_log.cpp)
+    test_log.cpp
+    test_fixed_timestep.cpp)
 target_link_libraries(engine_tests PRIVATE engine doctest::doctest)
 lge_set_warnings(engine_tests)
 

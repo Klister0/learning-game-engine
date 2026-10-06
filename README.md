@@ -82,3 +82,16 @@ Yapılan her adım burada, en yenisi en altta olacak şekilde yazılır.
   ve çıktı terminalse renkli yazılıyor.
 - **İlk testler** (doctest): önce test yazıldı, derlemenin "Log.cpp bulunamadı" diye
   başarısız olduğu görüldü, sonra kod yazıldı ve 3 test geçti.
+
+### Adım 1.2 — Sabit zaman adımı (`FixedTimestep`)
+- **Problem:** Fizik "konum += hız × dt" ile ilerler. dt her karede farklıysa (30 FPS'te
+  0.033 sn, 144 FPS'te 0.007 sn) sonuçlar bilgisayardan bilgisayara değişir; yavaş makinede
+  top duvarın içinden geçebilir.
+- **Çözüm — biriktirici:** Geçen süreyi bir kovada biriktir; kovada 1/60 sn'lik dolu bir
+  "adım" oldukça fiziği tam 1/60 sn ilerlet. Bir kare 0, 1 veya birkaç sabit adım üretebilir.
+- **Ölüm sarmalı koruması:** Program donarsa (breakpoint, pencere sürükleme) tek kare en
+  fazla 0.25 sn sayılır; yoksa kaybedilen zamanı telafi etmeye çalışırken daha da geride kalırdık.
+- **NaN tuzağı:** `NaN` ile her karşılaştırma `false` döner; biriktiriciye bir kez NaN
+  girerse sonsuza dek NaN kalır. `!(x > 0)` kontrolü hem negatifleri hem NaN'ı ayıklar.
+- 7 yeni test (toplam 10). Testlerde 0.25, 0.125 gibi float'ta tam temsil edilen sayılar
+  kullanıldı ki yuvarlama hataları testleri rastgele bozmasın.

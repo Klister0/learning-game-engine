@@ -6,8 +6,9 @@
 
 using engine::FixedTimestep;
 
-// Not: Testlerde 0.25, 0.125 gibi 2'nin kuvveti olan kesirler kullanıyoruz. Bunlar float'ta
-// tam olarak temsil edilir; böylece yuvarlama hataları testleri rastgele bozmaz.
+// Not: Testlerde 0.25, 0.125, 0.625 (= 5/8) gibi paydası 2'nin kuvveti olan kesirler
+// kullanıyoruz. Bunlar float'ta tam olarak temsil edilir; böylece yuvarlama hataları
+// testleri rastgele bozmaz.
 
 TEST_CASE("Adımdan kısa kare hiç sabit adım üretmez") {
     FixedTimestep ts(0.25f, 1.0f);
@@ -41,6 +42,14 @@ TEST_CASE("Negatif ve NaN kare süresi yok sayılır, sayaç bozulmaz") {
 TEST_CASE("Sıfır veya negatif adım varsayılan 1/60 sn'ye döner (sonsuz döngü koruması)") {
     CHECK(FixedTimestep(0.0f).step() == doctest::Approx(1.0f / 60.0f));
     CHECK(FixedTimestep(-1.0f).step() == doctest::Approx(1.0f / 60.0f));
+}
+
+TEST_CASE("clampFrame: onUpdate'e verilecek kare süresi de aynı kurallarla sınırlanır") {
+    FixedTimestep ts(0.25f, 0.5f);
+    CHECK(ts.clampFrame(0.125f) == 0.125f); // normal süre olduğu gibi kalır
+    CHECK(ts.clampFrame(10.0f) == 0.5f);    // uzun donma en fazla maxFrame sayılır
+    CHECK(ts.clampFrame(-1.0f) == 0.0f);
+    CHECK(ts.clampFrame(std::numeric_limits<float>::quiet_NaN()) == 0.0f);
 }
 
 TEST_CASE("Varsayılan ayarlarla 1/60 sn'lik kare tam bir adım üretir") {

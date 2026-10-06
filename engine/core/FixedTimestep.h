@@ -17,8 +17,13 @@ public:
     // maxFrameSeconds: tek bir karenin en fazla ne kadar sayılacağı ("ölüm sarmalı" koruması).
     explicit FixedTimestep(float stepSeconds = kDefaultStep, float maxFrameSeconds = kDefaultMaxFrame);
 
-    // Bu karenin süresini biriktirir ve şimdi çalıştırılması gereken sabit adım sayısını döndürür.
-    // Negatif veya NaN süre 0 sayılır.
+    // Ham kare süresini güvenli aralığa çeker: negatif/NaN → 0, maxFrame'den uzun → maxFrame.
+    // Application, onUpdate'e verdiği dt için de bunu kullanır; böylece uzun bir donmadan
+    // sonra animasyonlar ve hareketler de birden sıçramaz.
+    float clampFrame(float frameSeconds) const;
+
+    // Bu karenin süresini (clampFrame'den geçirerek) biriktirir ve şimdi çalıştırılması
+    // gereken sabit adım sayısını döndürür.
     int advance(float frameSeconds);
 
     float step() const { return m_step; }

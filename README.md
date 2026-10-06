@@ -108,10 +108,12 @@ Yapılan her adım burada, en yenisi en altta olacak şekilde yazılır.
   top duvarın içinden geçebilir.
 - **Çözüm — biriktirici:** Geçen süreyi bir kovada biriktir; kovada 1/60 sn'lik dolu bir
   "adım" oldukça fiziği tam 1/60 sn ilerlet. Bir kare 0, 1 veya birkaç sabit adım üretebilir.
-- **Ölüm sarmalı koruması:** Program donarsa (breakpoint, pencere sürükleme) tek kare en
-  fazla 0.25 sn sayılır; yoksa kaybedilen zamanı telafi etmeye çalışırken daha da geride kalırdık.
-- **NaN tuzağı:** `NaN` ile her karşılaştırma `false` döner; biriktiriciye bir kez NaN
-  girerse sonsuza dek NaN kalır. `!(x > 0)` kontrolü hem negatifleri hem NaN'ı ayıklar.
+- **0.25 sn sınırı:** Tek seferlik donmada (breakpoint, pencere sürükleme) kaybedilen zamanın
+  fazlası atılır, dünya ileri sıçramaz. Bir fizik adımı simüle ettiği süreden uzun sürüyorsa
+  ("ölüm sarmalı") kare başına adım sayısı sınırlı kalır: oyun donmak yerine ağır çekimde akar.
+- **NaN tuzağı:** `NaN` ile `<`, `>`, `<=`, `>=`, `==` hep `false` döner (yalnızca `!=` true);
+  biriktiriciye bir kez NaN girerse sonsuza dek NaN kalır. `!(x > 0)` kontrolü hem
+  negatifleri hem NaN'ı ayıklar.
 - 7 yeni test (toplam 10). Testlerde 0.25, 0.125 gibi float'ta tam temsil edilen sayılar
   kullanıldı ki yuvarlama hataları testleri rastgele bozmasın.
 
@@ -145,4 +147,10 @@ Yapılan her adım burada, en yenisi en altta olacak şekilde yazılır.
   fizikte neden sorun olduğu (sayısal örnekle), ölüm sarmalı, NaN tuzağı, C++ köşesi
   (RAII, `= delete`, ileri bildirim, `virtual`/`override`, makrolar) ve 5 alıştırma içeriyor.
 - README'ye "Nasıl derlenir ve çalıştırılır" bölümü eklendi.
+- **Bağımsız kod incelemesi** yapıldı ve şunlar düzeltildi:
+  - `onUpdate`'e giden dt artık o da 0.25 sn ile sınırlanıyor (`FixedTimestep::clampFrame`,
+    yeni test; toplam 15).
+  - Dokümandaki "ölüm sarmalı" tanımı düzeltildi (tek seferlik donma ile gerçek sarmal ayrıldı).
+  - NaN'ın `!=` istisnası, glad örneği (`glClear` OpenGL 1.1'dir), "FPS: 0" açıklaması ve
+    virtual yıkıcı olmadan silmenin *tanımsız davranış* olduğu eklendi.
 - Git etiketi: `bolum-01` (`git checkout bolum-01` ile bu ana dönebilirsin).

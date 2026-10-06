@@ -25,9 +25,13 @@ int Application::run() {
 
     while (m_window.isOpen()) {
         const double now = glfwGetTime();
-        const float dt = static_cast<float>(now - previousTime);
+        const float rawDt = static_cast<float>(now - previousTime);
         previousTime = now;
         m_totalTime = static_cast<float>(now - startTime);
+
+        // Oyun koduna giden dt sınırlanır (en fazla 0.25 sn, NaN/negatif → 0);
+        // FPS ölçümü ise gerçek süreyi kullanır.
+        const float dt = m_timestep.clampFrame(rawDt);
 
         // 1) Sabit adımlar: bu kare için birikmiş süre kadar (0, 1 veya birkaç kez).
         const int steps = m_timestep.advance(dt);
@@ -42,7 +46,7 @@ int Application::run() {
         // 3) Kareyi ekrana ver, klavye/fare/pencere olaylarını işle.
         m_window.swapAndPoll();
 
-        if (m_fpsCounter.tick(dt)) {
+        if (m_fpsCounter.tick(rawDt)) {
             m_window.setTitle(m_baseTitle + " | FPS: " + std::to_string(m_fpsCounter.fps()));
         }
     }

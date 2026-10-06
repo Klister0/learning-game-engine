@@ -35,9 +35,10 @@ her derlemede onları senkronlamaya çalışırdı.
 onları GitHub'dan belirli bir sürümle (`GIT_TAG 3.4`) kendisi indirdi. Herkes aynı sürümü
 kullanır, "bende çalışıyor" sorunu olmaz.
 
-**glad neden repoda?** OpenGL fonksiyonları (ör. `glClear`) Windows'un kendisinde değil,
-ekran kartı sürücüsünün içinde yaşar. Programın, çalışırken bu fonksiyonların adreslerini
-sürücüden sorması gerekir; glad bu işi yapan koddur. glad'ı bir Python aracıyla bir kez
+**glad neden repoda?** Windows'un `opengl32.dll` dosyası yalnızca 1997'den kalma OpenGL 1.1
+fonksiyonlarını (ör. `glClear`) doğrudan sunar. Modern fonksiyonlar (ör. `glCreateShader`,
+`glGenBuffers`) ekran kartı sürücüsünün içinde yaşar. Programın, çalışırken bu fonksiyonların
+adreslerini sürücüden sorması gerekir; glad bu işi yapan koddur. glad'ı bir Python aracıyla bir kez
 ürettik ve `external/glad/` altına koyduk. Böylece derlemek için Python gerekmiyor.
 
 ## 3. Oyun döngüsü
@@ -47,6 +48,7 @@ Her oyun özünde şu döngüdür:
 ```
            ┌────────────────────────────────────────────┐
            │  dt = son kareden bu yana geçen süre       │
+           │       (en fazla 0.25 sn ile sınırlanır)    │
            │                                            │
            │  1) onFixedUpdate(1/60)  × (0, 1, 2… kez)  │  ← fizik, oyun kuralları
            │  2) onUpdate(dt)                           │  ← animasyon, input tepkisi
@@ -80,20 +82,30 @@ Gerçek zamanı bir kovaya dök. Kovada 1/60 sn'lik dolu bir "adım" oldukça fi
 
 Kod: `engine/core/FixedTimestep.cpp` → `advance()`.
 
-### Ölüm sarmalı (spiral of death)
+### Kare süresini 0.25 saniyeyle sınırlamak
 
-Program bir an donarsa ne olur? Mesela debugger'da breakpoint'te 10 saniye bekledin, ya da
-Windows'ta pencereyi sürüklerken döngü durdu. Kovada 10 saniye birikir, yani 600 fizik adımı
-çalıştırmak gerekir. Bu adımlar o kadar uzun sürer ki o sırada daha da çok süre birikir.
-Oyun bir daha asla yetişemez ve donar.
+`FixedTimestep::clampFrame()` tek bir karenin en fazla **0.25 saniye** sayılmasını sağlar.
+Bu sınır iki ayrı soruna çözüm:
 
-Çözüm basit: tek bir karede en fazla **0.25 saniye** sayıyoruz. Kaybedilen zamanı telafi
-etmeye çalışmıyoruz; oyun bir anlığına "yavaş çekim" olup devam ediyor.
+**(a) Tek seferlik donma.** Debugger'da breakpoint'te 10 saniye bekledin, ya da Windows'ta
+pencereyi sürüklerken döngü durdu. Sınır olmasaydı bir sonraki karede kovada 10 saniye olur,
+fizik 600 adımı art arda çalıştırır ve dünya bir anda 10 saniye ileri sıçrardı: düşmanlar
+ışınlanır, top duvarları aşardı. Sınırla birlikte en fazla 0.25 sn (15 adım) çalışır, kalan
+9.75 sn **atılır**. Oyun küçük bir sıçramayla kaldığı yerden devam eder. Aynı sınırlı dt
+`onUpdate`'e de verilir, böylece animasyonlar da sıçramaz.
+
+**(b) Asıl "ölüm sarmalı" (spiral of death).** Bu, **bir fizik adımını hesaplamak, simüle
+ettiği süreden (1/60 sn) daha uzun sürdüğünde** olur. Mesela sahnede çok nesne var ve bir adım
+20 ms sürüyor. Her adım, kendi simüle ettiğinden (16.7 ms) daha fazla gerçek zaman harcıyor.
+2 adımlık bir kare 40 ms sürer ve bu sürede 2.4 adımlık zaman birikir. Birkaç kare sonra 3, sonra
+4, 5… adım gerekir. Her kare bir öncekinden daha uzun sürer ve oyun donar. Sınır, kare başına adım sayısını en fazla 15'e kilitler. Oyun zamanı gerçek zamandan
+yavaş akar (**ağır çekim**) ama asla donmaz.
 
 ### NaN tuzağı
 
-`NaN` ("sayı değil") ile yapılan **her karşılaştırma `false`** döner: `NaN > 0`, `NaN < 0`,
-hatta `NaN == NaN` bile `false`. Kovaya bir kez NaN girerse kova sonsuza dek NaN kalır,
+`NaN` ("sayı değil") ile yapılan `<`, `>`, `<=`, `>=` ve `==` karşılaştırmalarının **hepsi
+`false`** döner: `NaN > 0`, `NaN < 0`, hatta `NaN == NaN` bile `false`. Tek istisna `!=`:
+`NaN != NaN` **`true`** döner. (Bu yüzden `x != x` ifadesi yalnızca `x` NaN ise doğrudur.) Kovaya bir kez NaN girerse kova sonsuza dek NaN kalır,
 `kova >= adım` hiç doğru olmaz ve oyun sessizce durur. Bu yüzden kontrolü
 `if (dt < 0)` diye değil `if (!(dt > 0))` diye yazdık. İkincisi NaN'ı da yakalar.
 
@@ -124,8 +136,9 @@ sınıf bunu değiştirebilir" demek. `WindowDemo` içindeki `void onRender() ov
 `override` sayesinde derleyici hata verir.
 
 **Neden `virtual ~Application()`?** Bir gün `Application* app = new Breakout(); delete app;`
-yazarsak, yıkıcı virtual değilse yalnızca `~Application()` çalışır ve `Breakout`'un temizliği
-atlanır. Taban sınıf olarak tasarlanan her sınıfın yıkıcısı virtual olmalıdır.
+yazarsak ve yıkıcı virtual değilse, C++ standardına göre bu **tanımsız davranıştır**
+(undefined behavior). Pratikte genellikle yalnızca `~Application()` çalışır ve `Breakout`'un
+temizliği atlanır, ama her şey olabilir. Taban sınıf olarak tasarlanan her sınıfın yıkıcısı virtual olmalıdır.
 
 **Üye kurulum sırası.** Üyeler, kurucudaki yazılış sırasına göre değil, **sınıfta bildirildikleri
 sırayla** kurulur. Bu yüzden `Application`'da `m_baseTitle`, `m_window`'dan önce bildirildi.
@@ -155,18 +168,21 @@ Okuma sırası önerisi:
 
 Ekran gerektirmeyen her şeyi (log biçimi, sabit adım, FPS) **önce test** yazarak geliştirdik:
 
-1. **Kırmızı:** Test yazıldı ve derlendi, başarısız oldu (`FixedTimestep.h bulunamadı`).
+1. **Kırmızı:** Test yazıldı ve derlenmeye çalışıldı. Derleme başarısız oldu
+   (`FixedTimestep.h bulunamadı`), çünkü test edilen kod henüz yoktu.
 2. **Yeşil:** Testi geçirecek en sade kod yazıldı ve testler geçti.
 
 Önce kırmızıyı görmek önemli: hiç başarısız olmadığını gördüğün bir test, gerçekten bir şeyi
 test ettiğini kanıtlamaz.
 
-Testlerde 0.25, 0.125 gibi sayılar seçtik. Bunlar 2'nin kuvvetleri olduğu için `float`'ta
-**tam** temsil edilir. 0.1 gibi bir sayı ise float'ta 0.100000001490116… olarak saklanır ve
+Testlerde 0.25, 0.125, 0.625 (= 5/8) gibi sayılar seçtik. Bunlar **paydası 2'nin kuvveti olan
+kesirler** olduğu için `float`'ta **tam** temsil edilir. 0.1 gibi bir sayı ise float'ta 0.100000001490116… olarak saklanır ve
 toplamalarda küçük hatalar birikir.
 
-Konsolda ilk satırda `FPS: 0` görmen de normal: örnek programın ilk "1 saniye" raporu,
-FPS sayacının ilk ölçümünü tamamlamasından bir kare önce yazılıyor.
+Konsolda ilk satırda `FPS: 0` görmen de normal. Örnek programın "1 saniye" sayacı ile FPS
+sayacı aynı dt'leri topluyor, yani 1 saniyeyi **aynı karede** dolduruyorlar. Ama o karede
+`onUpdate` (rapor) FPS sayacının güncellenmesinden önce çalışıyor. Bu yüzden ilk rapor henüz
+hesaplanmamış 0'ı, sonraki her rapor da bir önceki saniyenin FPS'ini gösteriyor.
 
 ## 7. Alıştırmalar
 
@@ -177,7 +193,7 @@ b. `config.fixedStep = 1.0f / 30.0f;` yap. Konsoldaki adım sayısı neden 30'a 
    Bir yarış oyununda fiziği 30 Hz'de çalıştırmanın dezavantajı ne olurdu?
 
 c. Programı çalıştır ve pencereyi başlığından tutup 2–3 saniye sürükle, sonra bırak. Konsolda
-   o saniye için kaç adım gördün? Bunu 0.25 saniyelik sınırla açıkla.
+   o saniye için kaç adım gördün? Bunu 0.25 saniyelik sınırla (bölüm 3, madde a) açıkla.
 
 d. `tests/test_fixed_timestep.cpp` dosyasına kendi testini yaz: adım 0.25 sn, art arda
    3 kare × 0.1 sn. Kaç adım bekliyorsun? Testi çalıştır.

@@ -95,3 +95,9 @@ Yapılan her adım burada, en yenisi en altta olacak şekilde yazılır.
   girerse sonsuza dek NaN kalır. `!(x > 0)` kontrolü hem negatifleri hem NaN'ı ayıklar.
 - 7 yeni test (toplam 10). Testlerde 0.25, 0.125 gibi float'ta tam temsil edilen sayılar
   kullanıldı ki yuvarlama hataları testleri rastgele bozmasın.
+
+### Adım 1.3 — FPS sayacı (`FpsCounter`)
+- Her karede `tick(dt)` çağrılır; 1 saniye dolunca o sürede çizilen kare sayısını raporlar
+  ve sıfırdan başlar. Pencere başlığındaki FPS buradan gelecek.
+- Bozuk (negatif/NaN) süreler zaman olarak sayılmıyor, ama kare yine de çizildiği için kare
+  olarak sayılıyor. 4 yeni test (toplam 14).

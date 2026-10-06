@@ -39,3 +39,9 @@ Yapılan her adım burada, en yenisi en altta olacak şekilde yazılır.
 - Geliştirme ortamı olarak Visual Studio 2022 Community ("C++ ile masaüstü geliştirme"
   iş yükü: MSVC derleyicisi, Windows SDK, CMake) seçildi; `winget` ile kuruluyor.
 - Bu repo oluşturuldu.
+- **Proje yapısı kararlaştırıldı:** motor bir kütüphane (`engine/`), oyunlar onu kullanan
+  programlar (`examples/`, `games/`). Katmanlar tek yönlü bağımlı:
+  `core` → `renderer` / `input` / `physics` → `ecs` / `scene`. Oyun OpenGL'e doğrudan
+  dokunmaz; bu sayede 3D'ye geçişte sadece `renderer` büyür.
+- Derleme klasörü OneDrive dışında (`C:\dev\build\learning-game-engine`) tutulacak;
+  OneDrive'ın yüzlerce MB'lık derleme çıktısını senkronlamaya çalışması derlemeyi yavaşlatır.

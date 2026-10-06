@@ -67,3 +67,18 @@ Yapılan her adım burada, en yenisi en altta olacak şekilde yazılır.
   [docs/superpowers/specs/2026-10-06-learning-game-engine-design.md](docs/superpowers/specs/2026-10-06-learning-game-engine-design.md)
 - Bölüm 01'in adım adım uygulama planı yazıldı:
   [docs/superpowers/plans/2026-10-06-bolum-01-pencere-ve-oyun-dongusu.md](docs/superpowers/plans/2026-10-06-bolum-01-pencere-ve-oyun-dongusu.md)
+
+### Adım 1.1 — Derleme altyapısı ve Log
+- **CMake** kuruldu. `CMakePresets.json` derleme klasörünü OneDrive dışına
+  (`C:\dev\build\learning-game-engine\msvc`) koyuyor; Visual Studio bu dosyayı otomatik tanır.
+- **FetchContent:** GLFW 3.4 ve doctest v2.4.12 ilk configure sırasında GitHub'dan otomatik
+  iniyor — elle kütüphane kurmak yok.
+- **glad** (OpenGL 3.3 Core yükleyicisi) glad2 ile bir kez üretilip `external/glad/` altına
+  konuldu. Böylece derleme Python gerektirmiyor. Eklentiler (extensions) dahil edilmedi:
+  dosya küçük ve sade kalsın.
+- **`Log`** (`engine/core/Log.h`): `LOG_INFO / LOG_WARN / LOG_ERROR`. Bunlar fonksiyon değil
+  **makro**, çünkü çağrıldıkları yerin dosya adını (`__FILE__`) ve satırını (`__LINE__`)
+  ancak bir makro yakalayabilir. Windows konsolu UTF-8'e alınıyor (Türkçe karakterler için)
+  ve çıktı terminalse renkli yazılıyor.
+- **İlk testler** (doctest): önce test yazıldı, derlemenin "Log.cpp bulunamadı" diye
+  başarısız olduğu görüldü, sonra kod yazıldı ve 3 test geçti.

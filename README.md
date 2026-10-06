@@ -49,3 +49,8 @@ Yapılan her adım burada, en yenisi en altta olacak şekilde yazılır.
   çalıştırır (`onFixedUpdate` 1/60 sn — fizik; `onUpdate(dt)`; `onRender()`). `Window`
   GLFW'yi RAII ile sarmalar. Hatalar: kurtarılamazsa logla ve düzgün kapat; kurtarılabilirse
   (ör. eksik resim) uyar ve pembe-siyah "eksik doku" ile devam et. Exception hiyerarşisi yok.
+- **Renderer tasarımı kararlaştırıldı:** alt katman OpenGL sarmalayıcıları (`Shader`,
+  `VertexBuffer`/`IndexBuffer`/`VertexArray`, `Texture` — RAII, kopyalanamaz/taşınabilir);
+  üst katman `Renderer2D` (önce naif, sonra batching ile tek draw call). `Camera` soyut taban:
+  `OrthographicCamera` (2D), ileride `PerspectiveCamera` (3D). 3D'ye geçişte alt katman aynen
+  kalır, yanına `Renderer3D` + `Mesh` eklenir.

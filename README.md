@@ -20,7 +20,7 @@ anlamak. Her adım çalışır durumda bırakılır ve bu dosyada belgelenir.
 
 Her bölüm sonunda çalıştırılabilir bir sonuç olur ve bir git etiketi (`bolum-XX`) alır.
 
-- [ ] Bölüm 01 — Pencere ve oyun döngüsü (sabit zaman adımı, delta time)
+- [x] Bölüm 01 — Pencere ve oyun döngüsü (sabit zaman adımı, delta time) → [docs/bolum-01.md](docs/bolum-01.md)
 - [ ] Bölüm 02 — Shader'lar ve ekrana ilk üçgen
 - [ ] Bölüm 03 — Sprite renderer, doku yükleme, ortografik kamera
 - [ ] Bölüm 04 — Input sistemi
@@ -29,6 +29,25 @@ Her bölüm sonunda çalıştırılabilir bir sonuç olur ve bir git etiketi (`b
 - [ ] Bölüm 07 — Sahne yönetimi ve kaynak (asset) yöneticisi
 - [ ] Bölüm 08 — Demo oyun: Breakout
 - [ ] Bölüm 09 — 3D'ye geçiş: perspektif kamera, mesh, ışık
+
+## Nasıl derlenir ve çalıştırılır
+
+Gerekenler: Windows, Visual Studio 2022 ("C++ ile masaüstü geliştirme" iş yükü), Git.
+Diğer bağımlılıklar (GLFW, doctest) ilk derlemede otomatik iner.
+
+**Visual Studio ile:** *Dosya → Aç → Klasör* ile bu klasörü aç. Visual Studio
+`CMakePresets.json`'u tanır. Üstteki listeden `example_01_window.exe`'yi seçip ▶ ile çalıştır.
+
+**Komut satırıyla** ("Developer PowerShell for VS 2022" penceresinde, proje klasöründe):
+
+```powershell
+cmake --preset msvc            # configure (ilk seferde bağımlılıkları indirir)
+cmake --build --preset debug   # derle
+ctest --preset debug           # testleri çalıştır
+C:\dev\build\learning-game-engine\msvc\examples\Debug\example_01_window.exe
+```
+
+Derleme çıktıları OneDrive dışında, `C:\dev\build\learning-game-engine\` altında oluşur.
 
 ## Günlük
 
@@ -120,3 +139,10 @@ Yapılan her adım burada, en yenisi en altta olacak şekilde yazılır.
   FPS 80 ile 181 arasında oynarken sabit adım sayısı 52 saniye boyunca hep 60–62 kaldı.
   Pencere küçültme/geri açma ve yeniden boyutlandırmada çökme yok, renk tüm alanı kaplıyor;
   X ile kapatınca program 0 koduyla çıkıyor.
+
+### Bölüm 01 tamamlandı ✔
+- Ders dokümanı: [docs/bolum-01.md](docs/bolum-01.md). Oyun döngüsü, değişken dt'nin
+  fizikte neden sorun olduğu (sayısal örnekle), ölüm sarmalı, NaN tuzağı, C++ köşesi
+  (RAII, `= delete`, ileri bildirim, `virtual`/`override`, makrolar) ve 5 alıştırma içeriyor.
+- README'ye "Nasıl derlenir ve çalıştırılır" bölümü eklendi.
+- Git etiketi: `bolum-01` (`git checkout bolum-01` ile bu ana dönebilirsin).

@@ -45,3 +45,7 @@ Yapılan her adım burada, en yenisi en altta olacak şekilde yazılır.
   dokunmaz; bu sayede 3D'ye geçişte sadece `renderer` büyür.
 - Derleme klasörü OneDrive dışında (`C:\dev\build\learning-game-engine`) tutulacak;
   OneDrive'ın yüzlerce MB'lık derleme çıktısını senkronlamaya çalışması derlemeyi yavaşlatır.
+- **Çekirdek tasarımı kararlaştırıldı:** `Application::run()` sabit zaman adımlı döngü
+  çalıştırır (`onFixedUpdate` 1/60 sn — fizik; `onUpdate(dt)`; `onRender()`). `Window`
+  GLFW'yi RAII ile sarmalar. Hatalar: kurtarılamazsa logla ve düzgün kapat; kurtarılabilirse
+  (ör. eksik resim) uyar ve pembe-siyah "eksik doku" ile devam et. Exception hiyerarşisi yok.

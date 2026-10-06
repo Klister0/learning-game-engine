@@ -1,0 +1,10 @@
+# Derleme çıktıları
+build/
+out/
+
+# IDE dosyaları
+.vs/
+.vscode/
+*.user
+CMakeSettings.json
+CMakeUserPresets.json

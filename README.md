@@ -54,3 +54,8 @@ Yapılan her adım burada, en yenisi en altta olacak şekilde yazılır.
   üst katman `Renderer2D` (önce naif, sonra batching ile tek draw call). `Camera` soyut taban:
   `OrthographicCamera` (2D), ileride `PerspectiveCamera` (3D). 3D'ye geçişte alt katman aynen
   kalır, yanına `Renderer3D` + `Mesh` eklenir.
+- **Input / ECS / fizik / sahne tasarımı kararlaştırıldı:** `Input` polling tabanlı
+  (`isKeyDown`, `wasKeyPressed`). ECS sade: entity = sayı, component = sadece veri,
+  system = fonksiyon; `Registry` her component türünü ayrı depoda tutar (`add<T>`, `view<A,B>`).
+  Fizik: sabit adımda hız/yerçekimi + AABB çarpışma. `SceneManager` sahne geçişleri,
+  `AssetManager` `shared_ptr` önbellekli kaynak yükleme. Sahneler kodda kurulur.

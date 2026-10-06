@@ -65,3 +65,5 @@ Yapılan her adım burada, en yenisi en altta olacak şekilde yazılır.
   doğrulama → README → commit + push → `bolum-XX` etiketi.
 - Tüm tasarım tek dosyada toplandı:
   [docs/superpowers/specs/2026-10-06-learning-game-engine-design.md](docs/superpowers/specs/2026-10-06-learning-game-engine-design.md)
+- Bölüm 01'in adım adım uygulama planı yazıldı:
+  [docs/superpowers/plans/2026-10-06-bolum-01-pencere-ve-oyun-dongusu.md](docs/superpowers/plans/2026-10-06-bolum-01-pencere-ve-oyun-dongusu.md)

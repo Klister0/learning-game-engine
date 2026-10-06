@@ -59,3 +59,8 @@ Yapılan her adım burada, en yenisi en altta olacak şekilde yazılır.
   system = fonksiyon; `Registry` her component türünü ayrı depoda tutar (`add<T>`, `view<A,B>`).
   Fizik: sabit adımda hız/yerçekimi + AABB çarpışma. `SceneManager` sahne geçişleri,
   `AssetManager` `shared_ptr` önbellekli kaynak yükleme. Sahneler kodda kurulur.
+- **Test ve çalışma şekli kararlaştırıldı:** mantık kodu doctest ile test edilir (önce test);
+  görsel kısımlar bölüm örnekleriyle doğrulanır. Her bölüm: doküman → kod + test →
+  doğrulama → README → commit + push → `bolum-XX` etiketi.
+- Tüm tasarım tek dosyada toplandı:
+  [docs/superpowers/specs/2026-10-06-learning-game-engine-design.md](docs/superpowers/specs/2026-10-06-learning-game-engine-design.md)

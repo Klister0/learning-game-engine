@@ -101,3 +101,22 @@ Yapılan her adım burada, en yenisi en altta olacak şekilde yazılır.
   ve sıfırdan başlar. Pencere başlığındaki FPS buradan gelecek.
 - Bozuk (negatif/NaN) süreler zaman olarak sayılmıyor, ama kare yine de çizildiği için kare
   olarak sayılıyor. 4 yeni test (toplam 14).
+
+### Adım 1.4 — Pencere ve oyun döngüsü
+- **`Window`** GLFW penceresini ve OpenGL 3.3 Core bağlamını **RAII** ile yönetiyor: kurucu
+  açar, yıkıcı kapatır. Kopyalama `= delete` ile yasak (iki nesne aynı pencereyi kapatmaya
+  çalışmasın). Başlıkta GLFW yerine yalnızca `struct GLFWwindow;` **ileri bildirimi** var.
+- **glad** pencere açıldıktan sonra OpenGL fonksiyonlarının adreslerini sürücüden yüklüyor.
+- **`RenderCommand`** (`setClearColor`, `clear`): oyun kodu OpenGL'e doğrudan dokunmuyor.
+- **`Application::run()`** döngüsü: (1) birikmiş süre kadar `onFixedUpdate`, (2) `onUpdate(dt)`
+  ve `onRender()`, (3) `swapAndPoll()`. Oyunlar `Application`'dan türeyip bu kancaları yazıyor.
+- **Örnek (`examples/01_window`)** çalıştırıldı:
+  ```
+  [INFO] Window.cpp:60 OpenGL 3.3.0 Core Profile Context ... | AMD Radeon(TM) Graphics
+  [INFO] main.cpp:26 Son 1 saniyede 60 sabit adım çalıştı | FPS: 163
+  [INFO] main.cpp:26 Son 1 saniyede 60 sabit adım çalıştı | FPS: 80
+  [INFO] main.cpp:26 Son 1 saniyede 60 sabit adım çalıştı | FPS: 181
+  ```
+  FPS 80 ile 181 arasında oynarken sabit adım sayısı 52 saniye boyunca hep 60–62 kaldı.
+  Pencere küçültme/geri açma ve yeniden boyutlandırmada çökme yok, renk tüm alanı kaplıyor;
+  X ile kapatınca program 0 koduyla çıkıyor.
